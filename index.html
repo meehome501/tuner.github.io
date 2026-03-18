@@ -1,0 +1,298 @@
+<section class="section-third-desc" style="text-align: -webkit-center;">
+<style>:root{--bg-primary:#f5f5fa;--bg-card:#ffffff;--text-primary:#1a1a2e;--text-secondary:#7a7a95;--border-light:#e0e0ec;--accent-orange:#ff5722;--accent-orange-glow:rgba(255, 87, 34, 0.2);--accent-orange-bg:rgba(255, 87, 34, 0.08);--accent-green:#16b860;--accent-green-glow:rgba(22, 184, 96, 0.2);--accent-green-bg:rgba(22, 184, 96, 0.08);--accent-red:#e53755;--accent-red-glow:rgba(229, 55, 85, 0.2);--accent-red-bg:rgba(229, 55, 85, 0.08);--accent-blue:#4a7aed;--gradient-head:linear-gradient(180deg, #d9a0f7 0%, #b88ae0 25%, #9478c8 50%, #7a8ebf 100%);}
+.tuning-selector{z-index:2;display:flex;justify-content:center;gap:8px;padding:4px 0 14px;}
+.tuning-btn{font-family:'Kanit', sans-serif;font-size:0.88rem;font-weight:500;padding:8px 24px;border-radius:24px;border:2px solid var(--border-light);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;transition:all 0.3s ease;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+.tuning-btn.active{border-color:var(--accent-orange);color:var(--accent-orange);background:var(--accent-orange-bg);box-shadow:0 2px 12px var(--accent-orange-glow);}
+.tuning-btn:hover:not(.active){border-color:#bbb;color:#555;}
+.tuner-container{position:relative;z-index:1;width:min(440px, 94vw);display:flex;flex-direction:column;align-items:center;padding:0 10px;}
+.note-display{text-align:center;margin-bottom:4px;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.detected-note{font-family:'JetBrains Mono', monospace;font-size:3.8rem;font-weight:700;line-height:1;width:88px;height:88px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all 0.3s ease;}
+.detected-note.in-tune{color:var(--accent-green);background:var(--accent-green-bg);box-shadow:0 0 30px var(--accent-green-glow);}
+.detected-note.flat{color:var(--accent-orange);background:var(--accent-orange-bg);box-shadow:0 0 25px var(--accent-orange-glow);}
+.detected-note.sharp{color:var(--accent-red);background:var(--accent-red-bg);box-shadow:0 0 25px var(--accent-red-glow);}
+.detected-note.idle{color:var(--text-secondary);background:rgba(0,0,0,0.03);}
+.cents-display{font-family:'JetBrains Mono', monospace;font-size:0.95rem;color:var(--text-secondary);margin-top:4px;height:20px;}
+.waveform-container{width:100%;max-width:380px;height:70px;position:relative;margin-bottom:2px;}
+#waveformCanvas{width:100%;height:100%;}
+.gauge-container{width:100%;max-width:360px;height:48px;position:relative;margin:2px 0 4px;}
+.gauge-bar{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:88%;height:6px;border-radius:3px;opacity:0.55;background:linear-gradient(90deg, var(--accent-red) 0%, var(--accent-orange) 18%, var(--accent-green) 42%, var(--accent-green) 58%, var(--accent-orange) 82%, var(--accent-red) 100%);}
+.gauge-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:2px;height:22px;background:var(--accent-green);opacity:0.5;}
+.gauge-needle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:var(--accent-orange);box-shadow:0 2px 8px var(--accent-orange-glow);transition:left 0.12s ease-out;z-index:2;}
+.gauge-needle.in-tune{background:var(--accent-green);box-shadow:0 2px 12px var(--accent-green-glow);width:16px;height:16px;}
+.gauge-labels{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:94%;display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;color:var(--text-secondary);pointer-events:none;margin-top:22px;}
+.freq-display{font-family:'JetBrains Mono', monospace;font-size:0.78rem;color:var(--text-secondary);text-align:center;min-height:18px;opacity:0.7;margin-bottom:2px;}
+.mic-section{display:flex;justify-content:center;margin:6px 0 18px;}
+.mic-btn{font-family:'Kanit', sans-serif;font-size:0.95rem;font-weight:500;display:flex;align-items:center;gap:10px;padding:12px 30px;border-radius:50px;border:2px solid var(--border-light);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;transition:all 0.3s ease;box-shadow:0 1px 6px rgba(0,0,0,0.05);}
+.mic-btn:hover{border-color:var(--accent-blue);color:var(--accent-blue);}
+.mic-btn.active{border-color:var(--accent-green);color:var(--accent-green);background:var(--accent-green-bg);box-shadow:0 2px 20px var(--accent-green-glow);animation:pulse-mic 2s infinite;}
+@keyframes pulse-mic {
+0%,100%{box-shadow:0 2px 15px var(--accent-green-glow);}
+50%{box-shadow:0 2px 30px var(--accent-green-glow);}
+}
+.mic-icon{width:20px;height:20px;}
+.guitar-section{position:relative;width:320px;height:310px;margin:0 auto;}
+.guitar-head{position:absolute;left:50%;top:0;transform:translateX(-50%);width:130px;height:278px;background:var(--gradient-head);border-radius:20px 20px 60px 60px;box-shadow:0 6px 25px rgba(0,0,0,0.15), inset 0 1px 6px rgba(255,255,255,0.25);z-index:1;overflow:hidden;}
+.guitar-head::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:52px;height:60px;background:rgba(255,255,255,0.1);border-radius:3px 3px 0 0;}
+.head-logo{position:absolute;top:50%;left:50%;transform:translate(-50%, -58%);z-index:3;pointer-events:none;opacity:0.95;text-align:center;line-height:1.1;}
+.logo-main{display:block;font-family:'Kanit', sans-serif;font-size:1.45rem;font-weight:700;font-style:italic;color:white;text-shadow:0 2px 10px rgba(0,0,0,0.3);letter-spacing:0.5px;}
+.logo-sub{display:block;font-family:'Kanit', sans-serif;font-size:0.72rem;font-weight:400;color:rgba(255,255,255,0.7);margin-top:-1px;}
+.head-strings{position:absolute;top:28px;left:50%;transform:translateX(-50%);width:38px;height:220px;z-index:2;display:flex;justify-content:space-between;}
+.head-string{width:1.2px;height:100%;background:linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.15) 100%);}
+.peg-row-wrap{position:absolute;display:flex;align-items:center;z-index:3;}
+.peg-shaft{width:32px;height:7px;border-radius:4px;background:linear-gradient(180deg, #ddb0dd 0%, #b888b8 100%);}
+.peg-knob{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg, #ecc0ec, #b888b8);box-shadow:0 1px 4px rgba(0,0,0,0.2);flex-shrink:0;}
+.peg-L1{top:32px;left:56px;flex-direction:row-reverse;}
+.peg-L2{top:112px;left:56px;flex-direction:row-reverse;}
+.peg-L3{top:192px;left:52px;flex-direction:row-reverse;}
+.peg-L1 .peg-knob, .peg-L2 .peg-knob, .peg-L3 .peg-knob{margin-right:-1px;}
+.peg-R1{top:32px;right:56px;}
+.peg-R2{top:112px;right:56px;}
+.peg-R3{top:192px;right:52px;}
+.peg-R1 .peg-knob, .peg-R2 .peg-knob, .peg-R3 .peg-knob{margin-left:-1px;}
+.string-btn{position:absolute;width:54px;height:54px;border-radius:50%;border:2.5px solid var(--border-light);background:var(--bg-card);color:var(--text-secondary);font-family:'JetBrains Mono', monospace;font-size:1.15rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;user-select:none;-webkit-tap-highlight-color:transparent;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.string-btn:hover{border-color:#aaa;color:#444;transform:scale(1.08);}
+.string-btn:active, .string-btn.playing{border-color:var(--accent-orange);color:var(--accent-orange);background:var(--accent-orange-bg);box-shadow:0 2px 16px var(--accent-orange-glow);transform:scale(1.05);}
+.string-btn.matched{border-color:var(--accent-green);color:var(--accent-green);background:var(--accent-green-bg);box-shadow:0 2px 16px var(--accent-green-glow);}
+.btn-s2{top:10px;left:0;}
+.btn-s1{top:90px;left:0;}
+.btn-s0{top:170px;left:0;}
+.btn-s3{top:10px;right:0;}
+.btn-s4{top:90px;right:0;}
+.btn-s5{top:170px;right:0;}
+.string-label{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:0.8rem;color:var(--text-secondary);opacity:0.5;z-index:5;}
+.string-numbers{display:flex;justify-content:center;gap:14px;margin-top:6px;font-family:'JetBrains Mono', monospace;font-size:0.85rem;color:var(--text-secondary);}
+.string-num{width:28px;text-align:center;transition:color 0.3s;}
+.string-num.active{color:var(--accent-orange);font-weight:700;}
+.string-bars{display:flex;justify-content:center;gap:10px;margin:6px 0 14px;}
+.string-bar{width:28px;height:34px;border-radius:4px;background:rgba(0,0,0,0.04);border:1.5px solid var(--border-light);transition:all 0.3s ease;}
+.string-bar.active{background:var(--accent-orange);border-color:var(--accent-orange);box-shadow:0 2px 10px var(--accent-orange-glow);}
+.string-bar.matched{background:var(--accent-green);border-color:var(--accent-green);box-shadow:0 2px 10px var(--accent-green-glow);}
+.instructions{text-align:center;font-size:0.78rem;color:var(--text-secondary);padding:8px 20px 30px;max-width:420px;line-height:1.6;opacity:0.6;}
+@media(max-width:360px){
+.guitar-section{width:280px;height:280px;}
+.guitar-head{width:115px;height:250px;}
+.string-btn{width:46px;height:46px;font-size:1rem;}
+.btn-s0,.btn-s3{top:8px;}
+.btn-s1,.btn-s4{top:80px;}
+.btn-s2,.btn-s5{top:152px;}
+.peg-L1,.peg-R1{top:28px;}
+.peg-L2,.peg-R2{top:100px;}
+.peg-L3,.peg-R3{top:172px;}
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px);}
+to{opacity:1;transform:translateY(0);}
+}
+.tuner-container > *{animation:fadeIn 0.4s ease forwards;}</style>
+
+
+<div class="tuning-selector"> <button class="tuning-btn active" data-tuning="standard" onclick="setTuning('standard')">มาตรฐาน E</button> <button class="tuning-btn" data-tuning="half-down" onclick="setTuning('half-down')">ลดครึ่งเสียง E♭</button></div><div class="tuner-container">
+<div class="note-display">
+<div class="detected-note idle" id="detectedNote">—</div><div class="cents-display" id="centsDisplay"></div></div><div class="waveform-container"> <canvas id="waveformCanvas" width="1039" height="210"></canvas></div><div class="gauge-container">
+<div class="gauge-bar"></div><div class="gauge-center"></div><div class="gauge-needle" id="gaugeNeedle"></div><div class="gauge-labels"><span class="form-check-label">♭</span><span class="form-check-label">#</span></div></div><div class="freq-display" id="freqDisplay"></div><div class="mic-section"> <button class="mic-btn" id="micBtn" onclick="toggleMic()"> <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path> <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path> <line x1="12" y1="19" x2="12" y2="23"></line> <line x1="8" y1="23" x2="16" y2="23"></line> </svg> <span id="micLabel">เปิดไมโครโฟน</span> </button></div><div class="guitar-section">
+<div class="guitar-head">
+<div class="head-logo"> <span class="logo-main">Dochord</span> <span class="logo-sub">.com</span></div><div class="head-strings">
+<div class="head-string"></div><div class="head-string"></div><div class="head-string"></div><div class="head-string"></div><div class="head-string"></div><div class="head-string"></div></div></div><div class="peg-row-wrap peg-L1"><div class="peg-knob"></div><div class="peg-shaft"></div></div><div class="peg-row-wrap peg-L2"><div class="peg-knob"></div><div class="peg-shaft"></div></div><div class="peg-row-wrap peg-L3"><div class="peg-knob"></div><div class="peg-shaft"></div></div><div class="peg-row-wrap peg-R1"><div class="peg-shaft"></div><div class="peg-knob"></div></div><div class="peg-row-wrap peg-R2"><div class="peg-shaft"></div><div class="peg-knob"></div></div><div class="peg-row-wrap peg-R3"><div class="peg-shaft"></div><div class="peg-knob"></div></div><button class="string-btn btn-s2" data-string="2" onclick="playString(2)">D</button>
+<button class="string-btn btn-s1" data-string="1" onclick="playString(1)">A</button>
+<button class="string-btn btn-s0" data-string="0" onclick="playString(0)">E</button>
+<button class="string-btn btn-s3" data-string="3" onclick="playString(3)">G</button>
+<button class="string-btn btn-s4" data-string="4" onclick="playString(4)">B</button>
+<button class="string-btn btn-s5" data-string="5" onclick="playString(5)">E</button>
+<div class="string-label">String</div></div><div class="string-numbers"> <span class="string-num form-check-label" data-idx="0">6</span> <span class="string-num form-check-label" data-idx="1">5</span> <span class="string-num form-check-label active" data-idx="2">4</span> <span class="string-num form-check-label" data-idx="3">3</span> <span class="string-num form-check-label" data-idx="4">2</span> <span class="string-num form-check-label" data-idx="5">1</span></div><div class="string-bars">
+<div class="string-bar" data-idx="0"></div><div class="string-bar" data-idx="1"></div><div class="string-bar active" data-idx="2"></div><div class="string-bar" data-idx="3"></div><div class="string-bar" data-idx="4"></div><div class="string-bar" data-idx="5"></div></div></div><div class="instructions form-check-label"> กดปุ่มตัวโน้ตเพื่อฟังเสียง หรือเปิดไมโครโฟนแล้วดีดสายเพื่อจูน<br> <span style="color:var(--accent-green);">●</span> ตรง &nbsp; <span style="color:var(--accent-orange);">●</span> ต่ำไป &nbsp; <span style="color:var(--accent-red);">●</span> สูงไป</div><script>const TUNINGS={
+standard: {
+notes: [
+{ name: 'E', freq: 82.41 },
+{ name: 'A', freq: 110.00 },
+{ name: 'D', freq: 146.83 },
+{ name: 'G', freq: 196.00 },
+{ name: 'B', freq: 246.94 },
+{ name: 'E', freq: 329.63 }
+]
+},
+'half-down': {
+notes: [
+{ name: 'E♭', freq: 77.78 },
+{ name: 'A♭', freq: 103.83 },
+{ name: 'D♭', freq: 138.59 },
+{ name: 'G♭', freq: 185.00 },
+{ name: 'B♭', freq: 233.08 },
+{ name: 'E♭', freq: 311.13 }
+]
+}};
+const ALL_NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+let currentTuning='standard', audioCtx=null, micStream=null,
+analyserNode=null, micActive=false, animFrameId=null,
+playingGain=null, activeStringIdx=-1;
+const $=id=> document.getElementById(id);
+const detectedNoteEl=$('detectedNote'), centsDisplayEl=$('centsDisplay'),
+gaugeNeedleEl=$('gaugeNeedle'), freqDisplayEl=$('freqDisplay'),
+micBtn=$('micBtn'), micLabel=$('micLabel'),
+waveformCanvas=$('waveformCanvas'), waveCtx=waveformCanvas.getContext('2d');
+function getAudioCtx(){
+if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+if(audioCtx.state==='suspended') audioCtx.resume();
+return audioCtx;
+}
+function setTuning(t){
+currentTuning=t;
+document.querySelectorAll('.tuning-btn').forEach(b=> b.classList.toggle('active', b.dataset.tuning===t));
+const notes=TUNINGS[t].notes;
+document.querySelectorAll('.string-btn').forEach(b=> { b.textContent=notes[parseInt(b.dataset.string)].name; });
+clearActiveString();
+}
+function playString(idx){
+const ctx=getAudioCtx(), freq=TUNINGS[currentTuning].notes[idx].freq;
+stopTone(); setActiveString(idx);
+const osc=ctx.createOscillator(), gain=ctx.createGain(), filter=ctx.createBiquadFilter();
+osc.type='sawtooth'; osc.frequency.setValueAtTime(freq, ctx.currentTime);
+filter.type='lowpass'; filter.frequency.setValueAtTime(freq * 4, ctx.currentTime); filter.Q.setValueAtTime(1, ctx.currentTime);
+gain.gain.setValueAtTime(0, ctx.currentTime);
+gain.gain.linearRampToValueAtTime(0.8, ctx.currentTime + 0.01);
+gain.gain.exponentialRampToValueAtTime(0.4, ctx.currentTime + 0.3);
+gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.5);
+osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+osc.start(); osc.stop(ctx.currentTime + 3.5);
+playingGain=gain;
+const btn=document.querySelector(`.string-btn[data-string="${idx}"]`);
+btn.classList.add('playing');
+osc.onended=()=> btn.classList.remove('playing');
+setTimeout(()=> btn.classList.remove('playing'), 3500);
+}
+function stopTone(){
+if(playingGain){
+try { const c=getAudioCtx(); playingGain.gain.cancelScheduledValues(c.currentTime);
+playingGain.gain.setValueAtTime(playingGain.gain.value, c.currentTime);
+playingGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.05);
+} catch(e){}}
+document.querySelectorAll('.string-btn.playing').forEach(b=> b.classList.remove('playing'));
+}
+function setActiveString(idx){
+activeStringIdx=idx;
+document.querySelectorAll('.string-btn').forEach(b=> b.classList.remove('matched'));
+document.querySelectorAll('.string-bar').forEach(b=> {
+b.classList.remove('active','matched');
+if(parseInt(b.dataset.idx)===idx) b.classList.add('active');
+});
+document.querySelectorAll('.string-num').forEach(n=> n.classList.toggle('active', parseInt(n.dataset.idx)===idx));
+}
+function clearActiveString(){
+activeStringIdx=-1;
+document.querySelectorAll('.string-bar').forEach(b=> b.classList.remove('active','matched'));
+document.querySelectorAll('.string-num').forEach(n=> n.classList.remove('active'));
+document.querySelectorAll('.string-btn').forEach(b=> b.classList.remove('matched'));
+}
+async function toggleMic(){ micActive ? stopMic():await startMic(); }
+async function startMic(){
+try {
+const ctx=getAudioCtx();
+micStream=await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }});
+const src=ctx.createMediaStreamSource(micStream);
+analyserNode=ctx.createAnalyser(); analyserNode.fftSize=4096; analyserNode.smoothingTimeConstant=0.8;
+src.connect(analyserNode);
+micActive=true; micBtn.classList.add('active'); micLabel.textContent='ปิดไมโครโฟน';
+detectPitch();
+} catch(e){ alert('ไม่สามารถเข้าถึงไมโครโฟนได้ กรุณาอนุญาตการเข้าถึง'); }}
+function stopMic(){
+micActive=false;
+if(micStream){ micStream.getTracks().forEach(t=> t.stop()); micStream=null; }
+if(animFrameId){ cancelAnimationFrame(animFrameId); animFrameId=null; }
+micBtn.classList.remove('active'); micLabel.textContent='เปิดไมโครโฟน';
+detectedNoteEl.textContent='—'; detectedNoteEl.className='detected-note idle';
+centsDisplayEl.textContent=''; freqDisplayEl.textContent='';
+gaugeNeedleEl.style.left='50%'; gaugeNeedleEl.className='gauge-needle';
+clearWaveform();
+}
+function detectPitch(){
+if(!micActive||!analyserNode) return;
+const ctx=getAudioCtx(), buf=new Float32Array(analyserNode.fftSize);
+(function loop(){
+if(!micActive) return;
+animFrameId=requestAnimationFrame(loop);
+analyserNode.getFloatTimeDomainData(buf); drawWaveform(buf);
+const f=autoCorrelate(buf, ctx.sampleRate);
+if(f > 0) updateDisplay(f);
+else { detectedNoteEl.textContent='—'; detectedNoteEl.className='detected-note idle';
+centsDisplayEl.textContent=''; freqDisplayEl.textContent='';
+gaugeNeedleEl.style.left='50%'; gaugeNeedleEl.className='gauge-needle'; }})();
+}
+function autoCorrelate(buf, sr){
+let rms=0;
+for (let i=0; i < buf.length; i++) rms +=buf[i]*buf[i];
+if(Math.sqrt(rms/buf.length) < 0.008) return -1;
+const max=Math.floor(buf.length/2);
+let best=-1, bestC=0, found=false, corrs=new Array(max), last=1;
+for (let o=0; o < max; o++){
+let c=0;
+for (let i=0; i < max; i++) c +=Math.abs(buf[i]-buf[i+o]);
+c=1-(c/max); corrs[o]=c;
+if(c > 0.9&&c > last){ found=true; if(c > bestC){ bestC=c; best=o; }}
+else if(found){
+const s=(corrs[best+1]-corrs[best-1])/(2*(2*corrs[best]-corrs[best-1]-corrs[best+1]));
+return sr/(best+(s||0));
+}
+last=c;
+}
+return bestC > 0.01 ? sr/best:-1;
+}
+function updateDisplay(freq){
+const notes=TUNINGS[currentTuning].notes;
+let closest=-1, minD=Infinity;
+for (let i=0; i < notes.length; i++){
+const d=1200*Math.log2(freq/notes[i].freq);
+if(Math.abs(d) < Math.abs(minD)){ minD=d; closest=i; }}
+const noteNum=12*Math.log2(freq/440), ri=Math.round(noteNum);
+let name=Math.abs(minD) < 200&&closest >=0 ? notes[closest].name:ALL_NOTES[((ri%12)+12)%12];
+if(Math.abs(minD) < 200&&closest >=0) setActiveString(closest);
+detectedNoteEl.textContent=name;
+const cents=Math.round(minD), abs=Math.abs(cents);
+if(abs <=5){
+detectedNoteEl.className='detected-note in-tune';
+centsDisplayEl.textContent='✓ ตรง!'; centsDisplayEl.style.color='var(--accent-green)';
+gaugeNeedleEl.className='gauge-needle in-tune';
+if(closest >=0){
+document.querySelector(`.string-btn[data-string="${closest}"]`)?.classList.add('matched');
+document.querySelector(`.string-bar[data-idx="${closest}"]`)?.classList.add('matched');
+}}else if(cents < 0){
+detectedNoteEl.className='detected-note flat';
+centsDisplayEl.textContent=`${cents} cents (ต่ำ)`; centsDisplayEl.style.color='var(--accent-orange)';
+gaugeNeedleEl.className='gauge-needle';
+}else{
+detectedNoteEl.className='detected-note sharp';
+centsDisplayEl.textContent=`+${cents} cents (สูง)`; centsDisplayEl.style.color='var(--accent-red)';
+gaugeNeedleEl.className='gauge-needle';
+}
+gaugeNeedleEl.style.left=(50+(Math.max(-50,Math.min(50,cents))/50)*45)+'%';
+freqDisplayEl.textContent=freq.toFixed(1)+' Hz';
+}
+function resizeCanvas(){
+const r=waveformCanvas.parentElement.getBoundingClientRect(), d=window.devicePixelRatio||1;
+waveformCanvas.width=r.width*d; waveformCanvas.height=r.height*d;
+waveCtx.setTransform(d,0,0,d,0,0);
+}
+function drawWaveform(buf){
+const d=window.devicePixelRatio||1, w=waveformCanvas.width/d, h=waveformCanvas.height/d;
+waveCtx.clearRect(0,0,w,h);
+const g=waveCtx.createLinearGradient(0,0,w,0);
+g.addColorStop(0,'rgba(140,90,220,0.1)'); g.addColorStop(0.25,'rgba(140,90,220,0.5)');
+g.addColorStop(0.4,'rgba(255,87,34,0.75)'); g.addColorStop(0.5,'rgba(255,87,34,0.95)');
+g.addColorStop(0.6,'rgba(255,87,34,0.75)'); g.addColorStop(0.75,'rgba(74,122,237,0.5)');
+g.addColorStop(1,'rgba(74,122,237,0.1)');
+const mid=h/2;
+waveCtx.beginPath(); waveCtx.moveTo(0,mid);
+for (let x=0;x<w;x++) waveCtx.lineTo(x, mid+(buf[Math.floor(x*buf.length/w)]||0)*mid*3);
+waveCtx.strokeStyle=g; waveCtx.lineWidth=2; waveCtx.stroke();
+waveCtx.beginPath(); waveCtx.moveTo(0,mid);
+for (let x=0;x<w;x++) waveCtx.lineTo(x, mid-(buf[Math.floor(x*buf.length/w)]||0)*mid*2.5);
+waveCtx.globalAlpha=0.2; waveCtx.strokeStyle=g; waveCtx.lineWidth=1.5; waveCtx.stroke();
+waveCtx.globalAlpha=1;
+waveCtx.beginPath(); waveCtx.moveTo(w/2,0); waveCtx.lineTo(w/2,h);
+waveCtx.strokeStyle='rgba(0,0,0,0.06)'; waveCtx.lineWidth=1; waveCtx.stroke();
+}
+function clearWaveform(){
+const d=window.devicePixelRatio||1;
+waveCtx.clearRect(0,0,waveformCanvas.width/d,waveformCanvas.height/d);
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas(); setTuning('standard');</script>
+<script defer="" src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;e9a38611ec6c41b287a203f29d0081bf&quot;,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}" crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9de24704ae32ee52',t:'MTc3MzgxNjM1Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></section>
